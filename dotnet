@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('restore'){
+            steps {
+                sh 'dotnet restore'
+            }
+        }
+        
+        stage('build'){
+            steps {
+		sh 'export DOTNET_ROOT=/home/lootfold/sdk/dotnet && dotnet sonarscanner begin /k:"vocabulary-builder-api"'
+                sh 'dotnet build'
+            }
+        }
+
+        stage('test'){
+            steps {
+                sh 'dotnet test'
+		sh 'export DOTNET_ROOT=/home/lootfold/sdk/dotnet && dotnet sonarscanner end'
+            }
+        }
+
+        stage('publish') {
+            steps {
+                sh 'dotnet publish VocabularyBuilder/VocabularyBuilder.csproj --configuration Release'
+            }
+        }
+    }
+}
